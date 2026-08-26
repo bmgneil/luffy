@@ -1,12 +1,12 @@
 {
-  "name": "luffy-webhook-tester",
+  "name": "webhook-server",
   "version": "1.0.0",
-  "description": "Webhook test receiver on Railway",
+  "private": true,
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.21.2"
   }
 }
