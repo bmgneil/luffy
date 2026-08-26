@@ -1,32 +1,35 @@
-const express = require('express');
+const express = require("express");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+const allowedOrigin = process.env.ALLOWED_ORIGIN;
 
-// Middleware to parse JSON and text payloads
 app.use(express.json());
-app.use(express.text({ type: '*/*' }));
 
-// Catch-all route to handle any incoming HTTP method (GET, POST, PUT, etc.)
-app.all('*', (req, res) => {
-    console.log(`\n--- NEW REQUEST RECEIVED [${new Date().toISOString()}] ---`);
-    console.log(`Method: ${req.method}`);
-    console.log(`Path:   ${req.path}`);
-    
-    console.log('\n--- HEADERS ---');
-    console.log(JSON.stringify(req.headers, null, 2));
+app.use((req, res, next) => {
+  if (req.headers.origin === allowedOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  }
 
-    console.log('\n--- QUERY PARAMETERS ---');
-    console.log(JSON.stringify(req.query, null, 2));
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    console.log('\n--- BODY PAYLOAD ---');
-    console.log(typeof req.body === 'object' ? JSON.stringify(req.body, null, 2) : req.body || '[Empty Body]');
-    
-    console.log('------------------------------------------------\n');
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
 
-    // Respond back to the sender
-    res.status(200).json({ status: 'success', message: 'Webhook received' });
+  next();
 });
 
-app.listen(PORT, () => {
-    console.log(`Webhook tester server running on port ${PORT}`);
+app.post("/api/notify", (req, res) => {
+  console.log("POST received:", req.body);
+  res.json({ status: "success" });
+});
+
+app.get("/", (req, res) => {
+  res.send("Webhook server is running");
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
